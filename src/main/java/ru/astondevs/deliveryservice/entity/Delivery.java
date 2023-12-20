@@ -2,6 +2,7 @@ package ru.astondevs.deliveryservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ru.astondevs.deliveryservice.dto.enums.DeliveryPriority;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryStatus;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,10 @@ public class Delivery {
     @Column(name = "comment", nullable = false)
     private String comment;
 
+    @Column(name = "delivery_priority", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DeliveryPriority deliveryPriority;
+
     @Column(name = "courier_id", nullable = false)
     private UUID courierId;
 
@@ -38,9 +43,6 @@ public class Delivery {
     @Enumerated(EnumType.STRING)
     private DeliveryStatus deliveryStatus;
 
-    @OneToMany(mappedBy = "", fetch = FetchType.LAZY)
-    private List<Address> addresses = new ArrayList<>();
-
-    @Column(name = "accept_time", nullable = false)
-    private LocalDateTime deliveryAcceptTime;
+    @Column(name = "delivery_time_creation", nullable = false)
+    private LocalDateTime deliveryTimeCreation;
 }
