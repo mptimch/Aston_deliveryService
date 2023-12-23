@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryPriority;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryStatus;
+import ru.astondevs.deliveryservice.dto.order.OrderDto;
+import ru.astondevs.deliveryservice.dto.order.ShopDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,14 +22,14 @@ import java.util.UUID;
 public class Delivery {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "order_id", nullable = false)
-    private UUID orderId;
+    private Long orderId;
 
-    @Column(name = "comment", nullable = false)
-    private String comment;
+//    @Column(name = "comment", nullable = false)
+//    private String comment;
 
     @Column(name = "delivery_priority", nullable = false)
     @Enumerated(EnumType.STRING)

@@ -1,10 +1,18 @@
 package ru.astondevs.deliveryservice.dto.courier;
 
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.UUID;
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CourierDto {
 
     private UUID id;
-    private UUID tgChatId;
+    private String tgChatCourierId;
     private String name;
 }

@@ -1,4 +1,4 @@
-package ru.astondevs.deliveryservice.dto.order;
+package ru.astondevs.deliveryservice.dto.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GoodDto {
-    private Long id;
-    private String name;
-    private int quantity;
+public class MessageDto {
+    private String message;
 }
