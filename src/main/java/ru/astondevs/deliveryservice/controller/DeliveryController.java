@@ -18,19 +18,21 @@ public class DeliveryController {
     public ResponseEntity<?> changeDeliveryStatus(@PathVariable("id") Long id) {
         boolean result = deliveryService.changeDeliveryStatus(id);
         if (result) {
-            return ResponseEntity.status(200).body("");
+            return ResponseEntity.status(200).build();
         }
-        return ResponseEntity.status(500).body("");
+        return ResponseEntity.status(500).build();
     }
 
     @PostMapping(value = "/add", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> add (@RequestBody OrderDto dto) {
-        deliveryService.save(dto);
         if (dto == null) {
             return ResponseEntity.status(500).body("Please insert correct dto");
         }
-        return ResponseEntity.status(201).body(dto);
+
+        boolean result = deliveryService.save(dto);
+        if (result) {
+            return ResponseEntity.status(201).body(dto);
+        }
+        return ResponseEntity.status(500).build();
     }
-
-
 }

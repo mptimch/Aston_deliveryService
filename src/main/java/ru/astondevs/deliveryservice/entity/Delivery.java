@@ -4,12 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryPriority;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryStatus;
-import ru.astondevs.deliveryservice.dto.order.OrderDto;
-import ru.astondevs.deliveryservice.dto.order.ShopDto;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity

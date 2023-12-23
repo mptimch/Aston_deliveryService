@@ -26,30 +26,37 @@ public class DeliveryService {
     private final TelegramFeignClient telegramClient;
     private final DeliveryRepository deliveryRepository;
 
+    // Этот метод тоже сделал boolean, он при неудаче возвращает false. Чтоб в контроллере
+    // потом возвращать другую ошибку
     @Transactional
-    public void save(OrderDto orderDto) {
-        CourierDto courierDto = courierClient.findFreeCourier();
+    public boolean save(OrderDto orderDto) {
+        try {
+            CourierDto courierDto = courierClient.findFreeCourier();
+            Delivery delivery = new Delivery();
 
-        Delivery delivery = new Delivery();
+            delivery.setDeliveryStatus(DeliveryStatus.IN_PROGRESS);
+            delivery.setDeliveryPriority(DeliveryPriority.MEDIUM);
+            delivery.setDeliveryTimeCreation(LocalDateTime.now());
+            delivery.setOrderId(orderDto.getId());
+            delivery.setCourierId(courierDto.getId());
+            delivery.setTgChatClientId(orderDto.getTgChatIdClient());
+            delivery.setTgChatCourierId(courierDto.getTgChatCourierId());
 
-        delivery.setDeliveryStatus(DeliveryStatus.IN_PROGRESS);
-        delivery.setDeliveryPriority(DeliveryPriority.MEDIUM);
-        delivery.setDeliveryTimeCreation(LocalDateTime.now());
-
-        delivery.setOrderId(orderDto.getId());
-        delivery.setCourierId(courierDto.getId());
-        delivery.setTgChatClientId(orderDto.getTgChatIdClient());
-        delivery.setTgChatCourierId(courierDto.getTgChatCourierId());
-
-        Delivery entity = deliveryRepository.save(delivery);
-
-        sendMessageToTgChatIdForCourier(orderDto, entity, delivery);
-        sendMessageToTgChatIdForClient(orderDto, delivery);
+            Delivery entity = deliveryRepository.save(delivery);
+            sendMessageToTgChatIdForCourier(orderDto, entity, delivery);
+            sendMessageToTgChatIdForClient(orderDto, delivery);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
+
 
     public boolean changeDeliveryStatus(Long deliveryId) {
         Delivery entity = deliveryRepository.findById(deliveryId).orElseThrow(
-                () -> new NotFoundModelException(String.format("Delivery with id = %s not found ", deliveryId))
+                () -> new NotFoundModelException(String.format("Delivery with id = %s not found ",
+                        deliveryId))
         );
         try {
             deliveryRepository.changeDeliveryStatus(DeliveryStatus.COMPLETED, deliveryId);
@@ -78,44 +85,4 @@ public class DeliveryService {
         ));
         telegramClient.sendMessageToTgChatClient(delivery.getTgChatClientId(), messageDtoForClient);
     }
-
-
-//
-//    @Transactional
-//    public void save(OrderDto dto) {
-//
-//        List<OrderDto> ordersDto = orderClient.findOrder();
-//        List<Long> buffer = new ArrayList<>();
-//
-//
-//        for (OrderDto orderDto : ordersDto) {
-////            try {
-//            CourierDto courierDto = courierClient.findFreeCourier();
-//            Delivery delivery = new Delivery();
-//
-//            delivery.setDeliveryStatus(DeliveryStatus.IN_PROGRESS);
-//            delivery.setDeliveryPriority(DeliveryPriority.MEDIUM);
-//            delivery.setDeliveryTimeCreation(LocalDateTime.now());
-//
-//            delivery.setOrderId(orderDto.getId());
-//            delivery.setCourierId(courierDto.getId());
-//            delivery.setTgChatClientId(orderDto.getTgChatIdClient());
-//            delivery.setTgChatCourierId(courierDto.getTgChatCourierId());
-//
-//
-//            orderClient.changeOrderStatusToAccepted(orderDto.getId());
-//            buffer.add(orderDto.getId());
-//
-//
-//            Delivery entity = deliveryRepository.save(delivery);
-//
-//            orderClient.changeOrderStatusToAccepted(orderDto.getId());
-//            sendMessageToTgChatIdForCourier(orderDto, entity, delivery);
-//            sendMessageToTgChatIdForClient(orderDto, delivery);
-//
-////        } catch (Exception e){
-////            e.printStackTrace();
-////            }
-//        }
-//    }
 }
