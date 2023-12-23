@@ -36,8 +36,11 @@ public class Delivery {
     @Column(name = "courier_id", nullable = false)
     private UUID courierId;
 
-    @Column(name = "tg_chat_id", nullable = false)
-    private String tgChatId;
+    @Column(name = "tg_chat_client_id", nullable = false)
+    private String tgChatClientId;
+
+    @Column(name = "tg_chat_courier_id", nullable = false)
+    private String tgChatCourierId;
 
     @Column(name = "delivery_status", nullable = false)
     @Enumerated(EnumType.STRING)
