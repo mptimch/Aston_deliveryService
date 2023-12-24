@@ -53,7 +53,7 @@ public class DeliveryService {
     @Transactional
     public void changeDeliveryStatusToCompletedAndSetOrderCompleted(Long deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new NotFoundModelException(String.format("Delivery with id = %s not found ", deliveryId)));
+                .orElseThrow(() -> new NotFoundDeliveryException(String.format("Delivery with id = %s not found ", deliveryId)));
 
         changeOrderStatusToCompleted(delivery.getOrderId());
 
@@ -74,7 +74,7 @@ public class DeliveryService {
 
     private void sendMessageToTgChatIdForClient(OrderDto orderDto, Delivery delivery) {
         if (delivery == null) {
-            throw new NotFoundModelException("Delivery not found");
+            throw new NotFoundDeliveryException("Delivery not found");
         }
         String messageForClient = DeliveryUtil.createMessageForClient(orderDto, delivery);
         telegramClient.sendMessageToTgChatClient(delivery.getTgChatClientId(), new MessageDto(messageForClient));
@@ -82,7 +82,7 @@ public class DeliveryService {
 
     private void sendMessageToTgChatIdForCourier(OrderDto orderDto, Delivery delivery) {
         if (delivery == null) {
-            throw new NotFoundModelException("Delivery not found");
+            throw new NotFoundDeliveryException("Delivery not found");
         }
         String messageForCourier = DeliveryUtil.createMessageForCourier(orderDto, delivery);
         telegramClient.sendMessageToTgChatCourier(delivery.getTgChatCourierId(), new MessageDto(messageForCourier));

@@ -18,6 +18,5 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
             SET d.deliveryStatus = :status 
             WHERE d.id = :deliveryId""")
     void changeDeliveryStatus(@Param("status") DeliveryStatus status, @Param("deliveryId") Long deliveryId);
-
     Optional<Delivery> findByOrderId(Long orderId);
 }

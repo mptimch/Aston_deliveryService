@@ -62,8 +62,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(NotFoundModelException.class)
-    public ResponseEntity<ResponseBody> handlerMethodArgumentNotValidException(NotFoundModelException e) {
+    @ExceptionHandler(NotFoundDeliveryException.class)
+    public ResponseEntity<ResponseBody> handlerMethodArgumentNotValidException(NotFoundDeliveryException e) {
         ResponseBody exceptionResponse = new ResponseBody(
                 Collections.singletonList(e.getMessage()), HttpStatus.NOT_FOUND, Instant.now());
         return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);

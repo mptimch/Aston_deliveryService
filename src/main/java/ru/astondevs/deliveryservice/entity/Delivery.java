@@ -5,7 +5,6 @@ import lombok.*;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryPriority;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryStatus;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
