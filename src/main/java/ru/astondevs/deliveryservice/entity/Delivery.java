@@ -5,6 +5,7 @@ import lombok.*;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryPriority;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryStatus;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "delivery")
+@Table(name = "deliveries")
 public class Delivery {
 
     @Id

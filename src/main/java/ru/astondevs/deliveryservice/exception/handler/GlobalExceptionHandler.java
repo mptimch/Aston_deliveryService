@@ -10,8 +10,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.astondevs.deliveryservice.exception.DuplicateException;
-import ru.astondevs.deliveryservice.exception.NotFoundModelException;
+import ru.astondevs.deliveryservice.exception.*;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -37,6 +36,27 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateException.class)
     public ResponseEntity<ResponseBody> handlerMethodArgumentNotValidException(DuplicateException e) {
+        ResponseBody exceptionResponse = new ResponseBody(
+                Collections.singletonList(e.getMessage()), HttpStatus.BAD_REQUEST, Instant.now());
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DeliveryStatusChangeException.class)
+    public ResponseEntity<ResponseBody> handlerMethodArgumentNotValidException(DeliveryStatusChangeException e) {
+        ResponseBody exceptionResponse = new ResponseBody(
+                Collections.singletonList(e.getMessage()), HttpStatus.BAD_REQUEST, Instant.now());
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotFoundOrderException.class)
+    public ResponseEntity<ResponseBody> handlerMethodArgumentNotValidException(NotFoundOrderException e) {
+        ResponseBody exceptionResponse = new ResponseBody(
+                Collections.singletonList(e.getMessage()), HttpStatus.BAD_REQUEST, Instant.now());
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotFoundCourierException.class)
+    public ResponseEntity<ResponseBody> handlerMethodArgumentNotValidException(NotFoundCourierException e) {
         ResponseBody exceptionResponse = new ResponseBody(
                 Collections.singletonList(e.getMessage()), HttpStatus.BAD_REQUEST, Instant.now());
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);

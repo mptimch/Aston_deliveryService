@@ -16,23 +16,16 @@ public class DeliveryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> changeDeliveryStatus(@PathVariable("id") Long id) {
-        boolean result = deliveryService.changeDeliveryStatus(id);
-        if (result) {
-            return ResponseEntity.status(200).build();
-        }
-        return ResponseEntity.status(500).build();
+        deliveryService.changeDeliveryStatus(id);
+
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/add", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> add (@RequestBody OrderDto dto) {
-        if (dto == null) {
-            return ResponseEntity.status(500).body("Please insert correct dto");
+    @PostMapping(value = "/order", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public boolean getOrderDto(@RequestBody OrderDto dto) {
+        if (deliveryService.save(dto)) {
+            return true;
         }
-
-        boolean result = deliveryService.save(dto);
-        if (result) {
-            return ResponseEntity.status(201).body(dto);
-        }
-        return ResponseEntity.status(500).build();
+        return false;
     }
 }

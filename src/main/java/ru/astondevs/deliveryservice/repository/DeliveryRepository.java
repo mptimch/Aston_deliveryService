@@ -17,4 +17,6 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
             " WHERE d.id = :deliveryId")
     void changeDeliveryStatus(DeliveryStatus status, Long deliveryId);
 
+    Optional<Delivery> findByOrderId(Long orderId);
+
 }

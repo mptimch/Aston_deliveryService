@@ -1,15 +1,27 @@
 package ru.astondevs.deliveryservice.mapper;
 
-import lombok.RequiredArgsConstructor;
-import ru.astondevs.deliveryservice.client.CourierFeignClient;
-import ru.astondevs.deliveryservice.client.OrderFeignClient;
+import org.springframework.stereotype.Component;
+import ru.astondevs.deliveryservice.dto.courier.CourierDto;
+import ru.astondevs.deliveryservice.dto.enums.DeliveryPriority;
+import ru.astondevs.deliveryservice.dto.enums.DeliveryStatus;
+import ru.astondevs.deliveryservice.dto.order.OrderDto;
+import ru.astondevs.deliveryservice.entity.Delivery;
 
-@RequiredArgsConstructor
+import java.time.LocalDateTime;
+
+@Component
 public class DeliveryMapper {
 
-    private final OrderFeignClient orderClient;
-    private final CourierFeignClient courierClient;
+    public Delivery createDelivery(OrderDto orderDto, CourierDto courierDto) {
+        Delivery delivery = new Delivery();
 
-
-
+        delivery.setDeliveryStatus(DeliveryStatus.IN_PROGRESS);
+        delivery.setDeliveryPriority(DeliveryPriority.MEDIUM);
+        delivery.setDeliveryTimeCreation(LocalDateTime.now());
+        delivery.setOrderId(orderDto.getId());
+        delivery.setCourierId(courierDto.getId());
+        delivery.setTgChatClientId(orderDto.getTgChatIdClient());
+        delivery.setTgChatCourierId(courierDto.getTgChatCourierId());
+        return delivery;
+    }
 }

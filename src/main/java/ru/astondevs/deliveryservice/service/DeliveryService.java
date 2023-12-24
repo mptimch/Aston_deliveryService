@@ -7,15 +7,15 @@ import ru.astondevs.deliveryservice.client.CourierFeignClient;
 import ru.astondevs.deliveryservice.client.OrderFeignClient;
 import ru.astondevs.deliveryservice.client.TelegramFeignClient;
 import ru.astondevs.deliveryservice.dto.courier.CourierDto;
-import ru.astondevs.deliveryservice.dto.enums.DeliveryPriority;
 import ru.astondevs.deliveryservice.dto.enums.DeliveryStatus;
 import ru.astondevs.deliveryservice.dto.message.MessageDto;
 import ru.astondevs.deliveryservice.dto.order.OrderDto;
 import ru.astondevs.deliveryservice.entity.Delivery;
-import ru.astondevs.deliveryservice.exception.NotFoundModelException;
+import ru.astondevs.deliveryservice.exception.*;
+import ru.astondevs.deliveryservice.mapper.DeliveryMapper;
 import ru.astondevs.deliveryservice.repository.DeliveryRepository;
 
-import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,64 +25,98 @@ public class DeliveryService {
     private final OrderFeignClient orderClient;
     private final TelegramFeignClient telegramClient;
     private final DeliveryRepository deliveryRepository;
+    private final DeliveryMapper deliveryMapper;
 
-    // Этот метод тоже сделал boolean, он при неудаче возвращает false. Чтоб в контроллере
-    // потом возвращать другую ошибку
     @Transactional
     public boolean save(OrderDto orderDto) {
+        if (orderDto == null) {
+            throw new NotFoundOrderException("Order not found");
+        }
+
+        validateAlreadyExists(orderDto);
+
+        CourierDto courierDto = courierClient.findFreeCourier();
+
+        if (courierDto == null) {
+            throw new NotFoundCourierException("Courier not found");
+        }
+
+        Delivery delivery = deliveryMapper.createDelivery(orderDto, courierDto);
+
+        Delivery savedDeliveryEntity = deliveryRepository.save(delivery);
+
+        sendMessageToTgChatIdForCourier(orderDto, savedDeliveryEntity);
+        sendMessageToTgChatIdForClient(orderDto, savedDeliveryEntity);
+
+        return true;
+    }
+
+    @Transactional
+    public void changeDeliveryStatus(Long deliveryId) {
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new NotFoundModelException(String.format("Delivery with id = %s not found ", deliveryId)));
+
         try {
-            CourierDto courierDto = courierClient.findFreeCourier();
-            Delivery delivery = new Delivery();
-
-            delivery.setDeliveryStatus(DeliveryStatus.IN_PROGRESS);
-            delivery.setDeliveryPriority(DeliveryPriority.MEDIUM);
-            delivery.setDeliveryTimeCreation(LocalDateTime.now());
-            delivery.setOrderId(orderDto.getId());
-            delivery.setCourierId(courierDto.getId());
-            delivery.setTgChatClientId(orderDto.getTgChatIdClient());
-            delivery.setTgChatCourierId(courierDto.getTgChatCourierId());
-
-            Delivery entity = deliveryRepository.save(delivery);
-            sendMessageToTgChatIdForCourier(orderDto, entity, delivery);
-            sendMessageToTgChatIdForClient(orderDto, delivery);
-            return true;
+            changeDeliveryStatusToCompleted(deliveryId);
+            changeOrderStatusToCompleted(delivery.getOrderId());
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            throw new DeliveryStatusChangeException(String.format("Failed to change delivery status, deliveryId = %s", deliveryId));
         }
     }
 
-
-    public boolean changeDeliveryStatus(Long deliveryId) {
-        Delivery entity = deliveryRepository.findById(deliveryId).orElseThrow(
-                () -> new NotFoundModelException(String.format("Delivery with id = %s not found ",
-                        deliveryId))
-        );
-        try {
-            deliveryRepository.changeDeliveryStatus(DeliveryStatus.COMPLETED, deliveryId);
-            orderClient.changeOrderStatusToCompleted(entity.getOrderId());
-            return true;
-        } catch (Exception e) {
-            e.getMessage();
-        }
-        return false;
+    private void changeDeliveryStatusToCompleted(Long deliveryId) {
+        deliveryRepository.changeDeliveryStatus(DeliveryStatus.COMPLETED, deliveryId);
     }
 
-    private void sendMessageToTgChatIdForCourier(OrderDto orderDto, Delivery entity, Delivery delivery) {
-        MessageDto messageDtoForCourier = new MessageDto();
-        messageDtoForCourier.setMessage(String.format("Address shop : %s, Address client = %s, Phone shop = %s, Good and count good = %s," +
-                        "  Priority = %s,   Client tgChatId : %s", orderDto.getShop().getAddress(), orderDto.getAddressClient(), orderDto.getShop().getPhone(),
-                orderDto.getNameAndCountGood(), entity.getDeliveryStatus(), orderDto.getTgChatIdClient()
-        ));
-        telegramClient.sendMessageToTgChatCourier(delivery.getTgChatCourierId(), messageDtoForCourier);
+    private void changeOrderStatusToCompleted(Long orderId) {
+        orderClient.changeOrderStatusToCompleted(orderId);
     }
 
     private void sendMessageToTgChatIdForClient(OrderDto orderDto, Delivery delivery) {
-        MessageDto messageDtoForClient = new MessageDto();
-        messageDtoForClient.setMessage(String.format("Address client = %s, Phone shop = %s, Good and count good = %s," +
-                        " Courier tgCourierChatId : %s", orderDto.getAddressClient(), orderDto.getShop().getPhone(),
-                orderDto.getNameAndCountGood(), delivery.getTgChatCourierId()
-        ));
-        telegramClient.sendMessageToTgChatClient(delivery.getTgChatClientId(), messageDtoForClient);
+        if (delivery == null) {
+            throw new NotFoundModelException("Delivery not found");
+        }
+        String messageForClient = createMessageForClient(orderDto, delivery);
+        telegramClient.sendMessageToTgChatClient(delivery.getTgChatClientId(), new MessageDto(messageForClient));
+    }
+
+    private void sendMessageToTgChatIdForCourier(OrderDto orderDto, Delivery delivery) {
+        if (delivery == null) {
+            throw new NotFoundModelException("Delivery not found");
+        }
+        String messageForCourier = createMessageForCourier(orderDto, delivery);
+        telegramClient.sendMessageToTgChatCourier(delivery.getTgChatCourierId(), new MessageDto(messageForCourier));
+    }
+
+    private String createMessageForCourier(OrderDto orderDto, Delivery delivery) {
+        String shopAddress = orderDto.getShop().getAddress();
+        String shopPhone = orderDto.getShop().getPhone();
+        String addressClient = orderDto.getAddressClient();
+        String nameAndCountGood = orderDto.getGoodsNamesAndQuantities(orderDto.getGoods());
+        String deliveryStatus = delivery.getDeliveryStatus().name();
+        String tgChatIdClient = orderDto.getTgChatIdClient();
+
+        return String.format("Address shop: %s, Address client: %s, Phone shop: %s, Good and count good: %s, Priority: %s, Client tgChatId: %s",
+                shopAddress, addressClient, shopPhone, nameAndCountGood, deliveryStatus, tgChatIdClient
+        );
+    }
+
+    private String createMessageForClient(OrderDto orderDto, Delivery delivery) {
+        String addressClient = orderDto.getAddressClient();
+        String phoneShop = orderDto.getShop().getPhone();
+        String nameAndCountGood = orderDto.getGoodsNamesAndQuantities(orderDto.getGoods());
+        String tgCourierChatId = delivery.getTgChatCourierId();
+
+        return String.format("Address client = %s, Phone shop = %s, Good and count good = %s, Courier tgCourierChatId : %s",
+                addressClient, phoneShop, nameAndCountGood, tgCourierChatId
+        );
+    }
+
+    private void validateAlreadyExists(OrderDto orderDto) {
+        Optional<Delivery> deliveryByOrderId = deliveryRepository.findByOrderId(orderDto.getId());
+
+        if (deliveryByOrderId.isPresent()) {
+            throw new DuplicateException(String.format("Order with id = %s already exist", orderDto.getId()));
+        }
     }
 }

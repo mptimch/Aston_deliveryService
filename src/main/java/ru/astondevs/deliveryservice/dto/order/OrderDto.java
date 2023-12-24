@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -17,15 +18,11 @@ public class OrderDto {
     private String tgChatIdClient;
     private String addressClient;
     private List<GoodDto> goods = new ArrayList<>();
-    private ShopDto shop;
+    private StoreDto shop;
 
-    public String getNameAndCountGood() {
-        String result = "";
-        for (GoodDto dto : goods) {
-            String name = dto.getName();
-            String count = String.valueOf(dto.getQuantity());
-            result += name + ": " + count;
-        }
-        return result;
+    public String getGoodsNamesAndQuantities(List<GoodDto> goodsDto) {
+        return goodsDto.stream()
+                .map(good -> good.getName() + " - " + good.getQuantity())
+                .collect(Collectors.joining(",\n"));
     }
 }
