@@ -16,16 +16,13 @@ public class DeliveryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> changeDeliveryStatus(@PathVariable("id") Long id) {
-        deliveryService.changeDeliveryStatus(id);
+        deliveryService.changeDeliveryStatusToCompletedAndSetOrderCompleted(id);
 
         return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/order", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public boolean getOrderDto(@RequestBody OrderDto dto) {
-        if (deliveryService.save(dto)) {
-            return true;
-        }
-        return false;
+    public void getOrderDto(@RequestBody OrderDto dto) {
+        deliveryService.save(dto);
     }
 }

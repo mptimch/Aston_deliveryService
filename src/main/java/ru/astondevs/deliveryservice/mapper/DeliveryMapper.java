@@ -13,15 +13,14 @@ import java.time.LocalDateTime;
 public class DeliveryMapper {
 
     public Delivery createDelivery(OrderDto orderDto, CourierDto courierDto) {
-        Delivery delivery = new Delivery();
-
-        delivery.setDeliveryStatus(DeliveryStatus.IN_PROGRESS);
-        delivery.setDeliveryPriority(DeliveryPriority.MEDIUM);
-        delivery.setDeliveryTimeCreation(LocalDateTime.now());
-        delivery.setOrderId(orderDto.getId());
-        delivery.setCourierId(courierDto.getId());
-        delivery.setTgChatClientId(orderDto.getTgChatIdClient());
-        delivery.setTgChatCourierId(courierDto.getTgChatCourierId());
-        return delivery;
+        return Delivery.builder()
+                .deliveryStatus(DeliveryStatus.IN_PROGRESS)
+                .deliveryPriority(DeliveryPriority.MEDIUM)
+                .deliveryTimeCreation(LocalDateTime.now())
+                .orderId(orderDto.getId())
+                .courierId(courierDto.getId())
+                .tgChatClientId(orderDto.getTgChatIdClient())
+                .tgChatCourierId(courierDto.getTgChatCourierId())
+                .build();
     }
 }

@@ -25,9 +25,6 @@ public class Delivery {
     @Column(name = "order_id", nullable = false)
     private Long orderId;
 
-//    @Column(name = "comment", nullable = false)
-//    private String comment;
-
     @Column(name = "delivery_priority", nullable = false)
     @Enumerated(EnumType.STRING)
     private DeliveryPriority deliveryPriority;

@@ -14,6 +14,7 @@ import ru.astondevs.deliveryservice.entity.Delivery;
 import ru.astondevs.deliveryservice.exception.*;
 import ru.astondevs.deliveryservice.mapper.DeliveryMapper;
 import ru.astondevs.deliveryservice.repository.DeliveryRepository;
+import ru.astondevs.deliveryservice.util.DeliveryUtil;
 
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ public class DeliveryService {
     private final DeliveryMapper deliveryMapper;
 
     @Transactional
-    public boolean save(OrderDto orderDto) {
+    public void save(OrderDto orderDto) {
         if (orderDto == null) {
             throw new NotFoundOrderException("Order not found");
         }
@@ -47,18 +48,17 @@ public class DeliveryService {
 
         sendMessageToTgChatIdForCourier(orderDto, savedDeliveryEntity);
         sendMessageToTgChatIdForClient(orderDto, savedDeliveryEntity);
-
-        return true;
     }
 
     @Transactional
-    public void changeDeliveryStatus(Long deliveryId) {
+    public void changeDeliveryStatusToCompletedAndSetOrderCompleted(Long deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new NotFoundModelException(String.format("Delivery with id = %s not found ", deliveryId)));
 
+        changeOrderStatusToCompleted(delivery.getOrderId());
+
         try {
             changeDeliveryStatusToCompleted(deliveryId);
-            changeOrderStatusToCompleted(delivery.getOrderId());
         } catch (Exception e) {
             throw new DeliveryStatusChangeException(String.format("Failed to change delivery status, deliveryId = %s", deliveryId));
         }
@@ -76,7 +76,7 @@ public class DeliveryService {
         if (delivery == null) {
             throw new NotFoundModelException("Delivery not found");
         }
-        String messageForClient = createMessageForClient(orderDto, delivery);
+        String messageForClient = DeliveryUtil.createMessageForClient(orderDto, delivery);
         telegramClient.sendMessageToTgChatClient(delivery.getTgChatClientId(), new MessageDto(messageForClient));
     }
 
@@ -84,32 +84,8 @@ public class DeliveryService {
         if (delivery == null) {
             throw new NotFoundModelException("Delivery not found");
         }
-        String messageForCourier = createMessageForCourier(orderDto, delivery);
+        String messageForCourier = DeliveryUtil.createMessageForCourier(orderDto, delivery);
         telegramClient.sendMessageToTgChatCourier(delivery.getTgChatCourierId(), new MessageDto(messageForCourier));
-    }
-
-    private String createMessageForCourier(OrderDto orderDto, Delivery delivery) {
-        String shopAddress = orderDto.getShop().getAddress();
-        String shopPhone = orderDto.getShop().getPhone();
-        String addressClient = orderDto.getAddressClient();
-        String nameAndCountGood = orderDto.getGoodsNamesAndQuantities(orderDto.getGoods());
-        String deliveryStatus = delivery.getDeliveryStatus().name();
-        String tgChatIdClient = orderDto.getTgChatIdClient();
-
-        return String.format("Address shop: %s, Address client: %s, Phone shop: %s, Good and count good: %s, Priority: %s, Client tgChatId: %s",
-                shopAddress, addressClient, shopPhone, nameAndCountGood, deliveryStatus, tgChatIdClient
-        );
-    }
-
-    private String createMessageForClient(OrderDto orderDto, Delivery delivery) {
-        String addressClient = orderDto.getAddressClient();
-        String phoneShop = orderDto.getShop().getPhone();
-        String nameAndCountGood = orderDto.getGoodsNamesAndQuantities(orderDto.getGoods());
-        String tgCourierChatId = delivery.getTgChatCourierId();
-
-        return String.format("Address client = %s, Phone shop = %s, Good and count good = %s, Courier tgCourierChatId : %s",
-                addressClient, phoneShop, nameAndCountGood, tgCourierChatId
-        );
     }
 
     private void validateAlreadyExists(OrderDto orderDto) {
