@@ -10,9 +10,9 @@ import ru.astondevs.deliveryservice.dto.message.MessageDto;
 @FeignClient(value = "telegramClient", url = "http://localhost:8080/")
 public interface TelegramFeignClient {
 
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     void sendMessageToTgChatCourier(@PathVariable("id") String id, @RequestBody MessageDto messageDto);
 
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     void sendMessageToTgChatClient(@PathVariable("id") String id, @RequestBody MessageDto messageDto);
 }
