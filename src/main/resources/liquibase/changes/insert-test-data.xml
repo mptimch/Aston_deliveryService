@@ -9,7 +9,7 @@
         <sql>
             INSERT INTO deliveries (order_id, delivery_priority, courier_id, tg_chat_client_id, tg_chat_courier_id,
                                     delivery_status, delivery_time_creation)
-            VALUES (1, 'HIGH', 'f47ac10b-58cc-4372-a567-0e02b2c3d479', '1', '1',
+            VALUES ('1', 'HIGH', 'f47ac10b-58cc-4372-a567-0e02b2c3d479', '1', '1',
                     'IN_PROGRESS', '2023-01-01 10:00:00');
         </sql>
     </changeSet>

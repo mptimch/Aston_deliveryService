@@ -12,6 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GoodDto {
+
     @NotNull(message = "OrderId must not be null")
     private Long id;
     @NotBlank(message = "Good name must not be null")

@@ -32,10 +32,10 @@ public class Delivery {
     private UUID courierId;
 
     @Column(name = "tg_chat_client_id", nullable = false)
-    private String tgChatClientId;
+    private Long tgChatClientId;
 
     @Column(name = "tg_chat_courier_id", nullable = false)
-    private String tgChatCourierId;
+    private Long tgChatCourierId;
 
     @Column(name = "delivery_status", nullable = false)
     @Enumerated(EnumType.STRING)

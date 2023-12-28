@@ -10,13 +10,13 @@
             CREATE TABLE deliveries
             (
                 id                     serial PRIMARY KEY,
-                order_id               integer      NOT NULL,
-                delivery_priority      varchar(30)  NOT NULL,
-                courier_id             uuid         NOT NULL,
-                tg_chat_client_id      varchar(255) NOT NULL,
-                tg_chat_courier_id     varchar(255) NOT NULL,
-                delivery_status        varchar(30)  NOT NULL,
-                delivery_time_creation timestamp    NOT NULL
+                order_id               integer     NOT NULL,
+                delivery_priority      varchar(30) NOT NULL,
+                courier_id             uuid        NOT NULL,
+                tg_chat_client_id      integer     NOT NULL,
+                tg_chat_courier_id     integer     NOT NULL,
+                delivery_status        varchar(30) NOT NULL,
+                delivery_time_creation timestamp   NOT NULL
             );
         </sql>
     </changeSet>
