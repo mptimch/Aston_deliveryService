@@ -11,4 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MessageDto {
     private String message;
+    private Long orderId;
 }

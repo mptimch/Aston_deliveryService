@@ -14,8 +14,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDto {
+
     private Long id;
-    private String tgChatIdClient;
+    private Long tgChatIdClient;
     private String addressClient;
     private List<GoodDto> goods = new ArrayList<>();
     private StoreDto shop;

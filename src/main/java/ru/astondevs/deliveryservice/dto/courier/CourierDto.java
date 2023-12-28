@@ -20,4 +20,5 @@ public class CourierDto {
     private String chatId;
     @NotBlank(message = "Nickname must not be null")
     private String nickname;
+
 }

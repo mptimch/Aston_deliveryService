@@ -77,7 +77,7 @@ public class DeliveryService {
             throw new NotFoundDeliveryException("Delivery not found");
         }
         String messageForClient = DeliveryUtil.createMessageForClient(orderDto, delivery);
-        telegramClient.sendMessageToTgChatClient(delivery.getTgChatClientId(), new MessageDto(messageForClient));
+        telegramClient.sendMessageToTgChatClient(delivery.getTgChatClientId(), new MessageDto(messageForClient, orderDto.getId()));
     }
 
     private void sendMessageToTgChatIdForCourier(OrderDto orderDto, Delivery delivery) {
@@ -85,7 +85,7 @@ public class DeliveryService {
             throw new NotFoundDeliveryException("Delivery not found");
         }
         String messageForCourier = DeliveryUtil.createMessageForCourier(orderDto, delivery);
-        telegramClient.sendMessageToTgChatCourier(delivery.getTgChatCourierId(), new MessageDto(messageForCourier));
+        telegramClient.sendMessageToTgChatCourier(delivery.getTgChatCourierId(), new MessageDto(messageForCourier, orderDto.getId()));
     }
 
     private void validateAlreadyExists(OrderDto orderDto) {

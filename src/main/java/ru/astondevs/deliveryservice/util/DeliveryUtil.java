@@ -11,7 +11,7 @@ public final class DeliveryUtil {
         String addressClient = orderDto.getAddressClient();
         String nameAndCountGood = orderDto.getGoodsNamesAndQuantities(orderDto.getGoods());
         String deliveryStatus = delivery.getDeliveryStatus().name();
-        String tgChatIdClient = orderDto.getTgChatIdClient();
+        Long tgChatIdClient = orderDto.getTgChatIdClient();
 
         return String.format("Address shop: %s, Address client: %s, Phone shop: %s, Good and count good: %s, Priority: %s, Client tgChatId: %s",
                 shopAddress, addressClient, shopPhone, nameAndCountGood, deliveryStatus, tgChatIdClient
@@ -22,7 +22,7 @@ public final class DeliveryUtil {
         String addressClient = orderDto.getAddressClient();
         String phoneShop = orderDto.getShop().getPhone();
         String nameAndCountGood = orderDto.getGoodsNamesAndQuantities(orderDto.getGoods());
-        String tgCourierChatId = delivery.getTgChatCourierId();
+        Long tgCourierChatId = delivery.getTgChatCourierId();
 
         return String.format("Address client = %s, Phone shop = %s, Good and count good = %s, Courier tgCourierChatId : %s",
                 addressClient, phoneShop, nameAndCountGood, tgCourierChatId

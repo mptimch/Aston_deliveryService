@@ -17,5 +17,6 @@ public class GoodDto {
     private Long id;
     @NotBlank(message = "Good name must not be null")
     private String name;
+
     private int quantity;
 }

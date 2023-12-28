@@ -20,7 +20,7 @@ public class DeliveryMapper {
                 .orderId(orderDto.getId())
                 .courierId(courierDto.getId())
                 .tgChatClientId(orderDto.getTgChatIdClient())
-                .tgChatCourierId(courierDto.getChatId())
+                .tgChatCourierId(Long.valueOf(courierDto.getChatId()))
                 .build();
     }
 }
