@@ -77,7 +77,7 @@ public class DeliveryService {
             throw new NotFoundDeliveryException("Delivery not found");
         }
         String messageForClient = DeliveryUtil.createMessageForClient(orderDto, delivery);
-        telegramClient.sendMessageToTgChatClient(delivery.getTgChatClientId(), new MessageDto(messageForClient, orderDto.getId()));
+        telegramClient.sendMessageToTgChatClient(delivery.getTgChatClientId(), new MessageDto(messageForClient, null));
     }
 
     private void sendMessageToTgChatIdForCourier(OrderDto orderDto, Delivery delivery) {
